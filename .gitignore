@@ -1,0 +1,238 @@
+# GTN Engineering IT Helpdesk - .gitignore
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Flask specific
+instance/
+.webassets-cache
+
+# SQLAlchemy migrations
+migrations/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Log files
+*.log
+logs/
+*.out
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Security and secrets
+*.pem
+*.key
+*.crt
+*.p12
+.secrets/
+secrets.json
+
+# Upload files (keep directory structure)
+uploads/*
+!uploads/.gitkeep
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Backup files
+*.bak
+*.backup
+backup_*/
+*.sql
+*.dump
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# Poetry
+poetry.lock
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Replit specific
+.replit
+replit.nix
+.config/
+.upm/
+
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Test coverage
+.coverage
+.nyc_output
+coverage/
+
+# Documentation build files
+docs/_build/
+docs/build/
+
+# Package lock files
+package-lock.json
+yarn.lock
+
+# Local configuration overrides
+config.local.py
+settings.local.py
+
+# Redis dump file
+dump.rdb
+
+# Email test files
+sent_emails/
+
+# Profile images (keep structure)
+static/profile_images/*
+!static/profile_images/.gitkeep
+
+# Generated files
+static/css/compiled/
+static/js/compiled/
+
+# Error tracking files
+.sentry-dsn
+
+# Local development files
+dev_*.py
+test_*.py
+debug_*.py
+
+# Temporary upload files
+*.upload
+*.uploading
+
+# Lock files
+*.lock

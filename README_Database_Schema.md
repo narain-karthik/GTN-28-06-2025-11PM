@@ -1,14 +1,25 @@
-# GTN Engineering IT Helpdesk - Database Schema
+# Database Schema Documentation
+
+Comprehensive documentation for the GTN Engineering IT Helpdesk System database structure, optimized for PostgreSQL with simplified two-tier role system.
 
 ## Overview
 
-This document provides comprehensive documentation for the GTN Engineering IT Helpdesk System database schema. The system uses PostgreSQL as the primary database with support for SQLite (development) and other database systems.
+The system uses a modern relational database architecture with four core tables supporting user management, ticket lifecycle, collaborative comments, and file attachments. Designed for PostgreSQL primary deployment with IST timezone support and optimized for Replit environment.
+
+## Database Architecture
+
+### **Core Design Principles**
+- **Simplified Role Structure**: Two-tier system (User and Super Admin)
+- **Audit Trail**: Complete tracking of ticket assignments and modifications
+- **Performance Optimized**: Strategic indexing and connection pooling
+- **Security First**: Foreign key constraints and data validation
+- **Timezone Aware**: IST (Indian Standard Time) support throughout
 
 ## Database Tables
 
 ### 1. Users Table (`users`)
 
-Stores user account information including employees, admins, and super admins.
+Central user management with authentication and profile data.
 
 ```sql
 CREATE TABLE users (
@@ -19,8 +30,7 @@ CREATE TABLE users (
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     department VARCHAR(100),
-    role VARCHAR(50) NOT NULL DEFAULT 'User',
-    is_admin BOOLEAN DEFAULT FALSE,
+    role VARCHAR(50) NOT NULL DEFAULT 'user',
     ip_address VARCHAR(45),
     system_name VARCHAR(100),
     profile_image VARCHAR(200),
@@ -28,31 +38,30 @@ CREATE TABLE users (
 );
 ```
 
-#### Columns Description:
-- **id**: Primary key, auto-incrementing integer
-- **username**: Unique username (3-80 characters)
-- **email**: Unique email address
-- **password_hash**: Hashed password using Werkzeug security
-- **first_name**: User's first name (2-50 characters)
-- **last_name**: User's last name (2-50 characters)
-- **department**: Optional department name
-- **role**: User role ('user', 'admin', 'super_admin')
-- **is_admin**: Boolean flag for admin privileges
-- **ip_address**: Last known IP address (IPv4/IPv6)
-- **system_name**: Last known system/computer name
-- **profile_image**: Optional profile image filename
-- **created_at**: Account creation timestamp
+**Field Specifications:**
+- `id`: Auto-incrementing primary key
+- `username`: Unique login identifier (3-80 chars, alphanumeric)
+- `email`: Unique email with validation
+- `password_hash`: Werkzeug-secured password hash (256 chars)
+- `first_name`, `last_name`: Required name fields (2-50 chars each)
+- `department`: Optional organizational unit (max 100 chars)
+- `role`: Simplified roles (`user` or `super_admin`)
+- `ip_address`: IPv4/IPv6 tracking (45 chars for IPv6)
+- `system_name`: Computer/device identifier
+- `profile_image`: Optional image filename
+- `created_at`: Account creation timestamp (UTC, converted to IST in display)
 
-#### Indexes:
+**Indexes & Constraints:**
 ```sql
 CREATE UNIQUE INDEX idx_users_username ON users(username);
 CREATE UNIQUE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_users_created_at ON users(created_at);
 ```
 
 ### 2. Tickets Table (`tickets`)
 
-Stores IT support tickets with detailed information and tracking.
+Complete ticket lifecycle management with assignment tracking.
 
 ```sql
 CREATE TABLE tickets (
@@ -66,7 +75,7 @@ CREATE TABLE tickets (
     user_ip_address VARCHAR(45),
     user_system_name VARCHAR(100),
     image_filename VARCHAR(255),
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    user_id INTEGER REFERENCES users(id) NOT NULL,
     assigned_to INTEGER REFERENCES users(id),
     assigned_by INTEGER REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -75,25 +84,25 @@ CREATE TABLE tickets (
 );
 ```
 
-#### Columns Description:
-- **id**: Primary key, auto-incrementing integer
-- **title**: Ticket title/summary (5-200 characters)
-- **description**: Detailed description of the issue
-- **category**: Issue category ('Hardware', 'Software')
-- **priority**: Priority level ('Low', 'Medium', 'High', 'Critical')
-- **status**: Current status ('Open', 'In Progress', 'Resolved', 'Closed')
-- **user_name**: Full name of ticket creator (captured at creation)
-- **user_ip_address**: IP address when ticket was created
-- **user_system_name**: System name when ticket was created
-- **image_filename**: Optional uploaded image filename
-- **user_id**: Foreign key to users table (ticket creator)
-- **assigned_to**: Foreign key to users table (assigned admin)
-- **assigned_by**: Foreign key to users table (who assigned the ticket)
-- **created_at**: Ticket creation timestamp
-- **updated_at**: Last modification timestamp
-- **resolved_at**: Resolution timestamp (null if not resolved)
+**Field Specifications:**
+- `id`: Auto-incrementing ticket number
+- `title`: Brief issue summary (5-200 chars)
+- `description`: Detailed problem description (min 10 chars)
+- `category`: Issue type (`Hardware`, `Software`)
+- `priority`: Urgency (`Low`, `Medium`, `High`, `Critical`)
+- `status`: Current state (`Open`, `In Progress`, `Resolved`, `Closed`)
+- `user_name`: Cached creator name for performance
+- `user_ip_address`: IP when ticket created
+- `user_system_name`: System name when created
+- `image_filename`: Optional attachment (supports multiple formats)
+- `user_id`: Ticket creator reference
+- `assigned_to`: Current assignee (Super Admin only)
+- `assigned_by`: Who made the assignment
+- `created_at`: Initial creation (UTC)
+- `updated_at`: Last modification (UTC)
+- `resolved_at`: Resolution timestamp (UTC, null if open)
 
-#### Indexes:
+**Indexes & Constraints:**
 ```sql
 CREATE INDEX idx_tickets_user_id ON tickets(user_id);
 CREATE INDEX idx_tickets_assigned_to ON tickets(assigned_to);
@@ -106,290 +115,216 @@ CREATE INDEX idx_tickets_created_at ON tickets(created_at);
 
 ### 3. Ticket Comments Table (`ticket_comments`)
 
-Stores comments and updates on tickets for communication tracking.
+Collaborative communication and ticket updates.
 
 ```sql
 CREATE TABLE ticket_comments (
     id SERIAL PRIMARY KEY,
-    ticket_id INTEGER NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    ticket_id INTEGER REFERENCES tickets(id) NOT NULL,
+    user_id INTEGER REFERENCES users(id) NOT NULL,
     comment TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
-#### Columns Description:
-- **id**: Primary key, auto-incrementing integer
-- **ticket_id**: Foreign key to tickets table
-- **user_id**: Foreign key to users table (comment author)
-- **comment**: Comment text content (minimum 5 characters)
-- **created_at**: Comment creation timestamp
+**Field Specifications:**
+- `id`: Auto-incrementing comment identifier
+- `ticket_id`: Parent ticket reference
+- `user_id`: Comment author reference
+- `comment`: Comment content (min 5 chars)
+- `created_at`: Comment timestamp (UTC)
 
-#### Indexes:
+**Indexes & Constraints:**
 ```sql
-CREATE INDEX idx_ticket_comments_ticket_id ON ticket_comments(ticket_id);
-CREATE INDEX idx_ticket_comments_user_id ON ticket_comments(user_id);
-CREATE INDEX idx_ticket_comments_created_at ON ticket_comments(created_at);
+CREATE INDEX idx_comments_ticket_id ON ticket_comments(ticket_id);
+CREATE INDEX idx_comments_user_id ON ticket_comments(user_id);
+CREATE INDEX idx_comments_created_at ON ticket_comments(created_at);
 ```
 
 ### 4. Attachments Table (`attachments`)
 
-Stores file attachments associated with tickets, supporting multiple file types.
+File attachment management for tickets.
 
 ```sql
 CREATE TABLE attachments (
     id SERIAL PRIMARY KEY,
-    ticket_id INTEGER NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
+    ticket_id INTEGER REFERENCES tickets(id) NOT NULL,
     filename VARCHAR(255) NOT NULL,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
-#### Columns Description:
-- **id**: Primary key, auto-incrementing integer
-- **ticket_id**: Foreign key to tickets table
-- **filename**: Original filename with timestamp prefix for uniqueness
-- **uploaded_at**: File upload timestamp
+**Field Specifications:**
+- `id`: Auto-incrementing attachment identifier
+- `ticket_id`: Parent ticket reference
+- `filename`: Secure stored filename with timestamp prefix
+- `uploaded_at`: Upload timestamp (UTC)
 
-#### Supported File Types:
-- **Images**: JPG, JPEG, PNG, GIF, BMP
-- **Documents**: PDF files
-- **Office Files**: Word (.doc, .docx), Excel (.xls, .xlsx)
-
-#### Indexes:
+**Indexes & Constraints:**
 ```sql
 CREATE INDEX idx_attachments_ticket_id ON attachments(ticket_id);
 CREATE INDEX idx_attachments_uploaded_at ON attachments(uploaded_at);
 ```
 
-## Relationships
+**Supported File Types:**
+- **Images**: JPG, JPEG, PNG, GIF
+- **Documents**: PDF, DOC, DOCX
+- **Spreadsheets**: XLS, XLSX
+- **Security**: File type validation and secure filename generation
 
-### Foreign Key Relationships:
+## Relationship Mapping
 
-1. **tickets.user_id → users.id**
-   - Each ticket belongs to one user (creator)
-   - One user can have multiple tickets
-
-2. **tickets.assigned_to → users.id**
-   - Each ticket can be assigned to one admin/super admin
-   - One admin can have multiple assigned tickets
-
-3. **ticket_comments.ticket_id → tickets.id**
-   - Each comment belongs to one ticket
-   - One ticket can have multiple comments
-   - CASCADE DELETE: Comments are deleted when ticket is deleted
-
-4. **ticket_comments.user_id → users.id**
-   - Each comment belongs to one user (author)
-   - One user can author multiple comments
-
-5. **attachments.ticket_id → tickets.id**
-   - Each attachment belongs to one ticket
-   - One ticket can have multiple attachments
-   - CASCADE DELETE: Attachments are deleted when ticket is deleted
-
-### Email Notification Integration:
-The `tickets.assigned_by` field enables automatic email notifications when Super Admins assign tickets to users. The email functionality is handled by the application layer using SMTP configuration stored in environment variables.
-
-## Database Setup Commands
-
-### Initial Table Creation:
-
+### **User Relationships**
 ```sql
--- Create Users table
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(80) UNIQUE NOT NULL,
-    email VARCHAR(120) UNIQUE NOT NULL,
-    password_hash VARCHAR(256) NOT NULL,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    department VARCHAR(100),
-    role VARCHAR(20) DEFAULT 'user',
-    is_admin BOOLEAN DEFAULT FALSE,
-    ip_address VARCHAR(45),
-    system_name VARCHAR(100),
-    profile_image VARCHAR(200),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- Users can create multiple tickets
+users(id) ←→ tickets(user_id) [1:Many]
 
--- Create Tickets table
-CREATE TABLE tickets (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(200) NOT NULL,
-    description TEXT NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    priority VARCHAR(20) NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'Open',
-    user_name VARCHAR(100) NOT NULL,
-    user_ip_address VARCHAR(45),
-    user_system_name VARCHAR(100),
-    image_filename VARCHAR(255),
-    user_id INTEGER NOT NULL REFERENCES users(id),
-    assigned_to INTEGER REFERENCES users(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    resolved_at TIMESTAMP
-);
+-- Users can be assigned multiple tickets (Super Admin only)
+users(id) ←→ tickets(assigned_to) [1:Many]
 
-ALTER TABLE tickets ADD COLUMN assigned_by INTEGER REFERENCES users(id);
+-- Users can assign multiple tickets (Super Admin only)
+users(id) ←→ tickets(assigned_by) [1:Many]
 
--- Create Ticket Comments table
-CREATE TABLE ticket_comments (
-    id SERIAL PRIMARY KEY,
-    ticket_id INTEGER NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id),
-    comment TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-UPDATE users SET role = 'user' WHERE role = 'User';
-UPDATE users SET role = 'admin' WHERE role = 'Admin';
-UPDATE users SET role = 'super_admin' WHERE role = 'Superadmin';
+-- Users can author multiple comments
+users(id) ←→ ticket_comments(user_id) [1:Many]
 ```
 
-### Create Indexes for Performance:
-
+### **Ticket Relationships**
 ```sql
--- Users table indexes
-CREATE UNIQUE INDEX idx_users_username ON users(username);
-CREATE UNIQUE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_role ON users(role);
+-- Tickets can have multiple comments
+tickets(id) ←→ ticket_comments(ticket_id) [1:Many]
 
--- Tickets table indexes
-CREATE INDEX idx_tickets_user_id ON tickets(user_id);
-CREATE INDEX idx_tickets_assigned_to ON tickets(assigned_to);
-CREATE INDEX idx_tickets_status ON tickets(status);
-CREATE INDEX idx_tickets_category ON tickets(category);
-CREATE INDEX idx_tickets_priority ON tickets(priority);
-CREATE INDEX idx_tickets_created_at ON tickets(created_at);
-
--- Ticket Comments table indexes
-CREATE INDEX idx_ticket_comments_ticket_id ON ticket_comments(ticket_id);
-CREATE INDEX idx_ticket_comments_user_id ON ticket_comments(user_id);
-CREATE INDEX idx_ticket_comments_created_at ON ticket_comments(created_at);
+-- Tickets can have multiple attachments
+tickets(id) ←→ attachments(ticket_id) [1:Many]
 ```
 
-### Add Trigger for Updated Timestamp:
+## Data Validation & Constraints
 
-```sql
--- Function to update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- Trigger for tickets table
-CREATE TRIGGER update_tickets_updated_at 
-    BEFORE UPDATE ON tickets 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-```
-
-## Sample Data Insertion
-
-### Create Default Admin Users:
-
-```sql
--- Super Admin User
-INSERT INTO users (username, email, password_hash, first_name, last_name, role, is_admin) 
-VALUES ('superadmin', 'admin@gtnengineering.com', 'hashed_password_here', 'Super', 'Admin', 'super_admin', true);
-
--- Regular Admin User
-INSERT INTO users (username, email, password_hash, first_name, last_name, role, is_admin) 
-VALUES ('admin', 'support@gtnengineering.com', 'hashed_password_here', 'Admin', 'User', 'admin', true);
-
--- Sample Regular User
-INSERT INTO users (username, email, password_hash, first_name, last_name, department) 
-VALUES ('jdoe', 'john.doe@gtnengineering.com', 'hashed_password_here', 'John', 'Doe', 'Engineering');
-```
-
-### Sample Ticket Data:
-
-```sql
--- Sample Hardware Ticket
-INSERT INTO tickets (title, description, category, priority, user_name, user_id, created_at) 
-VALUES ('Computer Won\'t Start', 'My workstation computer will not power on after the weekend.', 'Hardware', 'High', 'John Doe', 3, CURRENT_TIMESTAMP);
-
--- Sample Software Ticket
-INSERT INTO tickets (title, description, category, priority, user_name, user_id, created_at) 
-VALUES ('Email Client Issues', 'Outlook keeps crashing when trying to send emails with attachments.', 'Software', 'Medium', 'John Doe', 3, CURRENT_TIMESTAMP);
-```
-
-## Data Validation Rules
-
-### Users Table:
-- Username: 3-80 characters, unique
-- Email: Valid email format, unique
-- Password: Minimum 6 characters (hashed)
+### **Application-Level Validation**
+```python
+# User validation
+- Username: 3-80 characters, alphanumeric
+- Email: Valid email format
+- Password: Minimum 6 characters
 - Names: 2-50 characters each
-- Role: Must be 'user', 'admin', or 'super_admin'
 
-### Tickets Table:
+# Ticket validation
 - Title: 5-200 characters
 - Description: Minimum 10 characters
-- Category: Must be 'Hardware' or 'Software'
-- Priority: Must be 'Low', 'Medium', 'High', or 'Critical'
-- Status: Must be 'Open', 'In Progress', 'Resolved', or 'Closed'
+- Category: Hardware | Software
+- Priority: Low | Medium | High | Critical
+- Status: Open | In Progress | Resolved | Closed
 
-### Comments Table:
+# Comment validation
 - Comment: Minimum 5 characters
-
-## Backup and Maintenance
-
-### Regular Backup Command:
-```bash
-pg_dump -h localhost -U username -d gtn_helpdesk > backup_$(date +%Y%m%d_%H%M%S).sql
 ```
 
-### Database Statistics Query:
+### **Database-Level Constraints**
 ```sql
-SELECT 
-    'Users' as table_name, COUNT(*) as record_count FROM users
-UNION ALL
-SELECT 
-    'Tickets' as table_name, COUNT(*) as record_count FROM tickets
-UNION ALL
-SELECT 
-    'Comments' as table_name, COUNT(*) as record_count FROM ticket_comments;
+-- Role validation
+ALTER TABLE users ADD CONSTRAINT chk_role 
+CHECK (role IN ('user', 'super_admin'));
+
+-- Category validation
+ALTER TABLE tickets ADD CONSTRAINT chk_category 
+CHECK (category IN ('Hardware', 'Software'));
+
+-- Priority validation
+ALTER TABLE tickets ADD CONSTRAINT chk_priority 
+CHECK (priority IN ('Low', 'Medium', 'High', 'Critical'));
+
+-- Status validation
+ALTER TABLE tickets ADD CONSTRAINT chk_status 
+CHECK (status IN ('Open', 'In Progress', 'Resolved', 'Closed'));
 ```
-
-### Ticket Statistics Query:
-```sql
-SELECT 
-    status,
-    COUNT(*) as ticket_count,
-    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(), 2) as percentage
-FROM tickets 
-GROUP BY status
-ORDER BY ticket_count DESC;
-```
-
-## Migration Notes
-
-- **Image Upload Feature**: Added `image_filename` column to tickets table (June 23, 2025)
-- **Category Updates**: Removed 'Network' and 'Other' categories, keeping only 'Hardware' and 'Software'
-- **System Tracking**: Enhanced user system information capture for better support context
-
-## Security Considerations
-
-1. **Password Security**: All passwords are hashed using Werkzeug's security functions
-2. **File Upload Security**: Image uploads are validated and stored securely
-3. **Access Control**: Role-based permissions enforced at application level
-4. **SQL Injection Protection**: All queries use parameterized statements via SQLAlchemy ORM
 
 ## Performance Optimization
 
-1. **Indexes**: Strategic indexing on frequently queried columns
-2. **Foreign Key Constraints**: Proper relationships with referential integrity
-3. **Cascade Deletes**: Automatic cleanup of related records
-4. **Timestamp Triggers**: Automatic update timestamp management
+### **Query Performance**
+- **Connection Pooling**: PostgreSQL optimization
+- **Prepared Statements**: SQLAlchemy ORM optimization
+- **Strategic Indexing**: High-frequency query columns
+- **Query Caching**: Application-level result caching
 
----
+### **Database Tuning**
+```sql
+-- PostgreSQL specific optimizations
+ALTER SYSTEM SET shared_buffers = '256MB';
+ALTER SYSTEM SET effective_cache_size = '1GB';
+ALTER SYSTEM SET maintenance_work_mem = '64MB';
+ALTER SYSTEM SET checkpoint_completion_target = 0.9;
+ALTER SYSTEM SET wal_buffers = '16MB';
+```
 
-**Last Updated**: June 23, 2025  
-**Database Version**: PostgreSQL 13+  
-**Application**: GTN Engineering IT Helpdesk System
+## Security Implementation
+
+### **Access Control**
+- **Session-based Authentication**: Secure session management
+- **Role-based Authorization**: Two-tier permission system
+- **CSRF Protection**: All forms protected
+- **SQL Injection Prevention**: ORM-based queries only
+
+### **Data Protection**
+- Password hashing with Werkzeug security
+- Input validation at form and model levels
+- File upload security with type validation
+- IP address logging for security monitoring
+
+## Backup & Maintenance
+
+### **Backup Strategy**
+```bash
+# Daily automated backups
+pg_dump -h localhost -U postgres -d gtn_helpdesk | gzip > backup_$(date +%Y%m%d).sql.gz
+```
+
+### **Maintenance Tasks**
+```sql
+-- Weekly vacuum and analyze
+VACUUM ANALYZE;
+
+-- Monthly statistics update
+ANALYZE;
+
+-- Index maintenance
+REINDEX DATABASE gtn_helpdesk;
+```
+
+## Migration Procedures
+
+### **Schema Versioning**
+- Use SQLAlchemy-migrate for version control
+- Test all migrations in development environment
+- Backup before any schema changes
+- Document all modifications with timestamps
+
+## Monitoring & Analytics
+
+### **Performance Metrics**
+- Query execution time monitoring
+- Connection pool utilization
+- Database size growth tracking
+- Index usage statistics
+
+### **Business Intelligence**
+```sql
+-- Ticket resolution time by category
+SELECT 
+    category,
+    AVG(EXTRACT(EPOCH FROM (resolved_at - created_at))/3600) as avg_hours
+FROM tickets 
+WHERE resolved_at IS NOT NULL
+GROUP BY category;
+
+-- User activity report
+SELECT 
+    u.username,
+    COUNT(t.id) as tickets_created,
+    COUNT(ta.id) as tickets_assigned
+FROM users u
+LEFT JOIN tickets t ON u.id = t.user_id
+LEFT JOIN tickets ta ON u.id = ta.assigned_to
+GROUP BY u.id, u.username;
+```
+
+This database schema provides enterprise-grade reliability while maintaining simplicity for the two-tier role system. The design supports scalability, performance, and comprehensive audit trails for professional IT helpdesk operations.

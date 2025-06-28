@@ -1,53 +1,244 @@
 # GTN Engineering IT Helpdesk System
 
-A comprehensive Flask-based IT helpdesk management system designed for professional IT support operations. Successfully migrated to Replit environment with enhanced security, PostgreSQL database integration, and improved ticket history tracking.
+A comprehensive Flask-based IT helpdesk management system with modern UI/UX design, simplified role structure, and professional-grade features. Built for Replit with PostgreSQL integration and real-time dashboard functionality.
 
 ![Python](https://img.shields.io/badge/python-v3.11+-blue.svg)
 ![Flask](https://img.shields.io/badge/flask-v2.3+-green.svg)
 ![PostgreSQL](https://img.shields.io/badge/postgresql-v15+-blue.svg)
 ![Bootstrap](https://img.shields.io/badge/bootstrap-v5.3+-purple.svg)
-![Replit](https://img.shields.io/badge/replit-compatible-orange.svg)
+![Replit](https://img.shields.io/badge/replit-ready-orange.svg)
 
-## Features
+## 🌟 Key Features
 
-### 🎯 Core Functionality
-- **Role-Based Access Control**: Three user levels (Super Admin, Admin, User)
-- **Ticket Management**: Complete lifecycle from creation to resolution
-- **Enhanced Ticket History**: New streamlined format showing Created By, Assigned By, Assigned To, and Status with colored badges
-- **File Upload Support**: Secure attachment system supporting images, PDF, Word, and Excel files
-- **Email Notifications**: SMTP integration for automatic ticket assignment notifications
-- **System Detection**: Automatic IP address and system name capture
-- **Real-time Updates**: Live ticket status tracking and notifications
-- **Comment System**: Collaborative ticket discussion and updates
+### **Two-Tier Access System**
+- **User Role**: Create and track personal tickets, view ticket history
+- **Super Admin Role**: Complete system control, user management, ticket assignment, analytics
 
-### 📊 Advanced Features
-- **Visual Reports Dashboard**: Charts and analytics with Chart.js
-- **Excel Export**: Comprehensive ticket data export functionality
-- **User Management**: Complete user administration system
-- **Assignment System**: Intelligent ticket routing based on categories
-- **Search & Filtering**: Advanced ticket filtering and search capabilities
+### **Modern UI/UX Design**
+- **Hero Landing Page**: Gradient backgrounds, floating animations, professional branding
+- **Responsive Login**: Modern form design with floating labels and animated backgrounds
+- **Dashboard Analytics**: Visual charts and real-time statistics
+- **Mobile-First**: Fully responsive design for all devices
 
-### 🎨 Modern UI/UX
-- **Responsive Design**: Mobile-first Bootstrap 5 interface
-- **Professional Styling**: Modern CSS with custom properties
-- **Intuitive Navigation**: Role-based menu system
-- **Interactive Elements**: Hover effects and smooth transitions
-- **Accessibility**: WCAG compliant design patterns
+### **Comprehensive Ticket Management**
+- **Complete Lifecycle**: From creation to resolution with status tracking
+- **File Attachments**: Support for images, PDF, Word, Excel files
+- **Assignment System**: Intelligent routing to Super Admins
+- **Comment System**: Collaborative discussions and updates
+- **Email Notifications**: Automatic alerts for assignments and updates
 
-### 🔧 Technical Features
-- **Multi-Database Support**: PostgreSQL (primary), SQL Server, MySQL
-- **Security**: CSRF protection, secure password hashing
-- **Performance**: Connection pooling and optimized queries
-- **Scalability**: Gunicorn WSGI server for production deployment
+### **Advanced Features**
+- **Excel Reports**: Comprehensive data export with IST timezone
+- **Search & Filter**: Advanced ticket filtering capabilities
+- **Real-time Updates**: Live dashboard refresh and notifications
+- **System Detection**: Automatic IP and system name capture
+- **Audit Trail**: Complete ticket history with assignment tracking
 
-## System Requirements
+## 🗄️ Database Schema
 
-### Minimum Requirements
-- **Python**: 3.11 or higher
-- **Database**: PostgreSQL 15+ (recommended), SQL Server, or MySQL
-- **Memory**: 512MB RAM minimum, 1GB recommended
-- **Storage**: 100MB for application, additional space for database
-- **Network**: Port 5000 for development, 80/443 for production
+### **Users Table**
+```sql
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(80) UNIQUE NOT NULL,
+    email VARCHAR(120) UNIQUE NOT NULL,
+    password_hash VARCHAR(256) NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    department VARCHAR(100),
+    role VARCHAR(50) NOT NULL DEFAULT 'user',
+    ip_address VARCHAR(45),
+    system_name VARCHAR(100),
+    profile_image VARCHAR(200),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### **Tickets Table**
+```sql
+CREATE TABLE tickets (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    description TEXT NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    priority VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'Open',
+    user_name VARCHAR(100) NOT NULL,
+    user_ip_address VARCHAR(45),
+    user_system_name VARCHAR(100),
+    image_filename VARCHAR(255),
+    user_id INTEGER REFERENCES users(id) NOT NULL,
+    assigned_to INTEGER REFERENCES users(id),
+    assigned_by INTEGER REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    resolved_at TIMESTAMP
+);
+```
+
+### **Comments Table**
+```sql
+CREATE TABLE ticket_comments (
+    id SERIAL PRIMARY KEY,
+    ticket_id INTEGER REFERENCES tickets(id) NOT NULL,
+    user_id INTEGER REFERENCES users(id) NOT NULL,
+    comment TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### **Attachments Table**
+```sql
+CREATE TABLE attachments (
+    id SERIAL PRIMARY KEY,
+    ticket_id INTEGER REFERENCES tickets(id) NOT NULL,
+    filename VARCHAR(255) NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## 🚀 Quick Start
+
+### **Replit Deployment**
+1. Fork this repository to your Replit account
+2. PostgreSQL database is automatically provisioned
+3. Install dependencies: `pip install -r requirements.txt`
+4. Run the application: `python main.py`
+5. Access at: `https://your-repl-name.replit.app`
+
+### **Default Accounts**
+- **Super Admin**: username: `superadmin`, password: `super123`
+- **Test User**: username: `testuser`, password: `test123`
+
+## 🎨 UI/UX Features
+
+### **Landing Page**
+- Modern hero section with gradient background
+- Feature showcase with step-by-step process
+- User role comparison section
+- Call-to-action with smooth animations
+
+### **Login Page**
+- Split-screen design with branding
+- Floating form labels
+- Animated background shapes
+- Role indicators and access information
+
+### **User Dashboard**
+- Personal ticket overview
+- Quick ticket creation
+- Status-based filtering
+- Mobile-optimized layout
+
+### **Super Admin Dashboard**
+- System-wide statistics
+- Visual analytics charts
+- User management tools
+- Advanced filtering options
+
+## 🔧 Technical Architecture
+
+### **Backend Stack**
+- **Flask 2.3+**: Web framework with blueprints
+- **SQLAlchemy**: ORM with PostgreSQL support
+- **Flask-WTF**: Secure form handling with CSRF protection
+- **Werkzeug**: Password hashing and security utilities
+- **Gunicorn**: Production WSGI server
+
+### **Frontend Stack**
+- **Bootstrap 5.3**: Responsive CSS framework
+- **Remix Icons**: Modern icon library
+- **Chart.js**: Data visualization
+- **Vanilla JavaScript**: Client-side interactivity
+
+### **Database Support**
+- **PostgreSQL**: Primary production database
+- **Connection Pooling**: Optimized database performance
+- **IST Timezone**: Indian Standard Time support
+
+## 📱 Responsive Design
+
+### **Mobile Features**
+- Touch-friendly interface
+- Responsive navigation
+- Optimized forms
+- Mobile ticket creation
+- Swipe-friendly dashboards
+
+### **Desktop Features**
+- Full-screen dashboards
+- Advanced filtering
+- Bulk operations
+- Multi-panel views
+- Keyboard shortcuts
+
+## 🔐 Security Features
+
+### **Authentication & Authorization**
+- Session-based authentication
+- Role-based access control
+- CSRF protection on all forms
+- Secure password hashing
+
+### **Data Protection**
+- SQL injection prevention
+- XSS protection
+- File upload validation
+- IP address logging
+
+## 📈 Analytics & Reporting
+
+### **Dashboard Metrics**
+- Total tickets by status
+- Category distribution
+- Priority analysis
+- Resolution time tracking
+
+### **Export Features**
+- Excel reports with IST timestamps
+- Filtered data export
+- User activity reports
+- System usage analytics
+
+## 🛠️ Development
+
+### **Project Structure**
+```
+├── main.py              # Application entry point
+├── app.py               # Flask configuration
+├── routes.py            # URL routing and views
+├── models.py            # Database models
+├── forms.py             # WTForms definitions
+├── templates/           # Jinja2 templates
+├── static/             # CSS, JS, images
+├── utils/              # Utility functions
+└── uploads/            # File attachments
+```
+
+### **Environment Variables**
+- `DATABASE_URL`: PostgreSQL connection string
+- `SESSION_SECRET`: Flask session encryption key
+
+## 📞 Support
+
+### **Getting Help**
+- Review the documentation in this README
+- Check the database schema section
+- Examine the codebase structure
+- Test with default accounts
+
+### **Common Issues**
+- Database connection: Check PostgreSQL status
+- File uploads: Verify uploads directory permissions
+- SMTP errors: Configure email settings in utils/email.py
+
+## 📋 Recent Updates
+
+- **June 28, 2025**: Implemented modern UI/UX with hero section and animated login
+- **June 28, 2025**: Simplified to two-tier role system (User and Super Admin)
+- **June 28, 2025**: Added IST timezone support for Excel exports
+- **June 28, 2025**: Enhanced responsive design and mobile optimization
+- **June 28, 2025**: Completed Admin role removal and system simplification
 
 ### Supported Platforms
 - **Development**: Windows, macOS, Linux

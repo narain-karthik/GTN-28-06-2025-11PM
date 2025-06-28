@@ -1,155 +1,229 @@
-# PostgreSQL Setup Guide
-**GTN Engineering IT Helpdesk System**
+# PostgreSQL Setup Guide for GTN Engineering IT Helpdesk
 
-This guide covers PostgreSQL setup for both Replit environment (automatic) and local development environments (manual setup).
+Comprehensive setup guide for PostgreSQL database integration with the GTN Engineering IT Helpdesk System, optimized for Replit deployment and local development.
 
-## Table of Contents
-1. [Replit Environment Setup (Automatic)](#1-replit-environment-setup-automatic)
-2. [Local Development Setup (Windows)](#2-local-development-setup-windows)
-3. [Local Development Setup (macOS/Linux)](#3-local-development-setup-macoslinux)
-4. [Database Configuration](#4-database-configuration)
-5. [Troubleshooting](#5-troubleshooting)
-6. [Recent Updates](#6-recent-updates)
+## Overview
 
----
+The GTN Engineering IT Helpdesk System uses PostgreSQL as its primary production database with automatic provisioning in Replit environment. This guide covers both Replit deployment and local development setup.
 
-## 1. Replit Environment Setup (Automatic)
+## Replit Environment (Recommended)
 
-### ✅ Fully Automated Setup
-The GTN Engineering IT Helpdesk System is now optimized for Replit with automatic PostgreSQL provisioning:
+### Automatic PostgreSQL Provisioning
 
-**What's Automatically Configured:**
-- PostgreSQL 15+ database instance
-- Database connection environment variables
-- All required Python dependencies
-- Database tables and initial data
-- Default user accounts (Super Admin, Admin, Test User)
+The Replit environment automatically provides:
 
-**Getting Started:**
-1. Fork or import the project in Replit
-2. Run the application - database setup happens automatically
-3. Access your application at the provided Replit URL
-4. Login with default credentials (see main README.md)
+- **PostgreSQL Database**: Pre-configured and ready to use
+- **Environment Variables**: Automatically set connection parameters
+- **Connection Pooling**: Optimized for web application performance
+- **Backup Management**: Handled by Replit infrastructure
 
-**Environment Variables (Auto-Set):**
+### Available Environment Variables
+
 ```bash
-DATABASE_URL=postgresql://...  # Auto-generated
-PGHOST=...                     # Auto-configured
-PGPORT=5432                    # Auto-configured
-PGDATABASE=...                 # Auto-configured
-PGUSER=...                     # Auto-configured
-PGPASSWORD=...                 # Auto-configured
-SESSION_SECRET=...             # Auto-generated
+DATABASE_URL=postgresql://username:password@host:port/database
+PGHOST=your-postgres-host
+PGPORT=5432
+PGUSER=your-username
+PGPASSWORD=your-password
+PGDATABASE=your-database-name
 ```
 
-**Optional Email Notification Setup:**
-For automatic email notifications when tickets are assigned, configure these additional environment variables:
-```bash
-SMTP_USERNAME=your_email@gmail.com     # Your email address
-SMTP_PASSWORD=your_app_password        # Gmail app password (not regular password)
-SMTP_SERVER=smtp.gmail.com             # Optional (defaults to Gmail)
-SMTP_PORT=587                          # Optional (defaults to 587)
+### Verification Steps
+
+1. Check database connection status:
+```python
+# In your Replit console
+python -c "
+import os
+print('Database URL:', os.environ.get('DATABASE_URL', 'Not set'))
+print('PG Host:', os.environ.get('PGHOST', 'Not set'))
+print('PG Database:', os.environ.get('PGDATABASE', 'Not set'))
+"
 ```
 
-No manual database setup required!
+2. Test database connectivity:
+```python
+# Run this in Replit shell
+python -c "
+from app import db
+try:
+    db.create_all()
+    print('✅ Database connection successful!')
+    print('✅ Tables created successfully!')
+except Exception as e:
+    print(f'❌ Database error: {e}')
+"
+```
 
----
+## Local Development Setup
 
-## 2. Local Development Setup (Windows)
+### Prerequisites
 
-### Step 1.1: Download PostgreSQL
-1. Visit the official PostgreSQL website: [https://www.postgresql.org/download/windows/](https://www.postgresql.org/download/windows/)
-2. Click on "Download the installer"
-3. Download PostgreSQL 15 or later (recommended: PostgreSQL 16)
-4. Choose the Windows x86-64 version for 64-bit systems
+- **Python 3.11+**: Required for Flask application
+- **PostgreSQL 15+**: Database server
+- **Administrative Access**: For installation and configuration
 
-### Step 1.2: Install PostgreSQL
-1. Run the downloaded installer (`postgresql-16.x-windows-x64.exe`)
-2. Follow the installation wizard:
-   - **Installation Directory**: Keep default (`C:\Program Files\PostgreSQL\16`)
-   - **Data Directory**: Keep default (`C:\Program Files\PostgreSQL\16\data`)
-   - **Password**: Choose a strong password for the `postgres` user (remember this!)
-   - **Port**: Keep default (5432)
-   - **Locale**: Keep default
-3. **Important**: Uncheck "Stack Builder" at the end (not needed)
-4. Complete the installation
+### Windows Installation
 
----
+1. **Download PostgreSQL**:
+   - Visit: https://www.postgresql.org/download/windows/
+   - Download PostgreSQL 15.x or higher
+   - Run installer as Administrator
 
-## 2. Configure PostgreSQL
-
-### Step 2.1: Add PostgreSQL to PATH
-1. Open **System Properties** → **Advanced** → **Environment Variables**
-2. In **System Variables**, find and edit `PATH`
-3. Add: `C:\Program Files\PostgreSQL\16\bin`
-4. Click **OK** to save
-
-### Step 2.2: Test PostgreSQL Installation
-1. Open **Command Prompt** as Administrator
-2. Type: `psql --version`
-3. You should see: `psql (PostgreSQL) 16.x`
-
----
-
-## 3. Create Database and User
-
-### Step 3.1: Connect to PostgreSQL
-1. Open **Command Prompt**
-2. Connect as the postgres superuser:
-   ```cmd
-   psql -U postgres -h localhost
+2. **Installation Configuration**:
    ```
-3. Enter the password you set during installation
+   Installation Directory: C:\Program Files\PostgreSQL\15
+   Data Directory: C:\Program Files\PostgreSQL\15\data
+   Password: [Set strong password for postgres user]
+   Port: 5432 (default)
+   Locale: Default or your preference
+   ```
 
-### Step 3.2: Create Database
-Run these SQL commands in the PostgreSQL prompt:
+3. **Verify Installation**:
+   ```cmd
+   # Open Command Prompt as Administrator
+   cd "C:\Program Files\PostgreSQL\15\bin"
+   psql -U postgres -h localhost
+   # Enter password when prompted
+   # You should see: postgres=#
+   ```
 
-```sql
--- Create database for the helpdesk system
-CREATE DATABASE gtn_helpdesk
-    WITH 
-    OWNER = postgres
-    ENCODING = 'UTF8'
-    LC_COLLATE = 'English_United States.1252'
-    LC_CTYPE = 'English_United States.1252'
-    TABLESPACE = pg_default
-    CONNECTION LIMIT = -1;
+### macOS Installation
 
--- Create application user
-CREATE USER gtn_user WITH
-    LOGIN
-    SUPERUSER
-    INHERIT
-    CREATEDB
-    CREATEROLE
-    REPLICATION
-    PASSWORD 'gtn_password_2024';
+1. **Using Homebrew** (Recommended):
+   ```bash
+   # Install Homebrew if not already installed
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   
+   # Install PostgreSQL
+   brew install postgresql@15
+   
+   # Start PostgreSQL service
+   brew services start postgresql@15
+   ```
 
--- Grant all privileges
-GRANT ALL PRIVILEGES ON DATABASE gtn_helpdesk TO gtn_user;
+2. **Using PostgreSQL.app**:
+   - Download from: https://postgresapp.com/
+   - Drag to Applications folder
+   - Launch and initialize
+
+### Linux Installation (Ubuntu/Debian)
+
+```bash
+# Update package list
+sudo apt update
+
+# Install PostgreSQL
+sudo apt install postgresql postgresql-contrib
+
+# Start and enable PostgreSQL service
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+# Switch to postgres user
+sudo -u postgres psql
 ```
 
-### Step 3.3: Verify Database Creation
-```sql
--- List all databases
-\l
+## Database Configuration
 
--- Connect to the new database
+### Create GTN Helpdesk Database
+
+```sql
+-- Connect as postgres superuser
+psql -U postgres
+
+-- Create database
+CREATE DATABASE gtn_helpdesk;
+
+-- Create dedicated user (recommended)
+CREATE USER helpdesk_admin WITH PASSWORD 'secure_password_here';
+
+-- Grant privileges
+GRANT ALL PRIVILEGES ON DATABASE gtn_helpdesk TO helpdesk_admin;
+ALTER USER helpdesk_admin CREATEDB;
+
+-- Connect to new database
 \c gtn_helpdesk
 
--- Exit PostgreSQL
+-- Grant schema privileges
+GRANT ALL ON SCHEMA public TO helpdesk_admin;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO helpdesk_admin;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO helpdesk_admin;
+
+-- Exit
 \q
 ```
 
----
+### Environment Configuration
 
-## 4. Set Up Database Tables
+Create `.env` file in project root:
 
-### Step 4.1: Database Schema
-The application will automatically create these tables when first run:
+```env
+# Database Configuration
+DATABASE_URL=postgresql://helpdesk_admin:secure_password_here@localhost:5432/gtn_helpdesk
 
-#### Users Table
+# Flask Configuration
+FLASK_APP=main.py
+FLASK_ENV=development
+SESSION_SECRET=your_very_long_random_secret_key_here
+
+# Optional: Email Configuration
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your-email@domain.com
+SMTP_PASSWORD=your-app-password
+```
+
+### Install Python Dependencies
+
+```bash
+# Install PostgreSQL adapter
+pip install psycopg2-binary
+
+# Install all project dependencies
+pip install -r requirements.txt
+```
+
+## Database Schema Creation
+
+### Automatic Schema Creation
+
+The application automatically creates all required tables on first run:
+
+```bash
+# Run the application
+python main.py
+
+# Tables are created automatically:
+# - users
+# - tickets  
+# - ticket_comments
+# - attachments
+```
+
+### Manual Schema Verification
+
 ```sql
+-- Connect to database
+psql -U helpdesk_admin -d gtn_helpdesk
+
+-- List all tables
+\dt
+
+-- Check table structures
+\d users
+\d tickets
+\d ticket_comments
+\d attachments
+
+-- Verify relationships
+\d+ tickets
+```
+
+### Expected Database Schema
+
+```sql
+-- Users table (simplified two-tier roles)
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(80) UNIQUE NOT NULL,
@@ -158,279 +232,305 @@ CREATE TABLE users (
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     department VARCHAR(100),
-    role VARCHAR(20) DEFAULT 'user',
-    is_admin BOOLEAN DEFAULT FALSE,
+    role VARCHAR(50) NOT NULL DEFAULT 'user',
     ip_address VARCHAR(45),
     system_name VARCHAR(100),
     profile_image VARCHAR(200),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-```
 
-#### Tickets Table
-```sql
+-- Tickets table with assignment tracking
 CREATE TABLE tickets (
     id SERIAL PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
     description TEXT NOT NULL,
-    category VARCHAR(50) NOT NULL,  -- Hardware, Software (Network and Other removed)
+    category VARCHAR(50) NOT NULL,
     priority VARCHAR(20) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'Open',
     user_name VARCHAR(100) NOT NULL,
     user_ip_address VARCHAR(45),
     user_system_name VARCHAR(100),
-    image_filename VARCHAR(255),  -- NEW: For uploaded image attachments
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    image_filename VARCHAR(255),
+    user_id INTEGER REFERENCES users(id) NOT NULL,
     assigned_to INTEGER REFERENCES users(id),
+    assigned_by INTEGER REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     resolved_at TIMESTAMP
 );
-
-ALTER TABLE tickets ADD COLUMN assigned_by INTEGER REFERENCES users(id);
 ```
 
-#### Ticket Comments Table
-```sql
-CREATE TABLE ticket_comments (
-    id SERIAL PRIMARY KEY,
-    ticket_id INTEGER NOT NULL REFERENCES tickets(id),
-    user_id INTEGER NOT NULL REFERENCES users(id),
-    comment TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+## Performance Optimization
 
-UPDATE users SET role = 'user' WHERE role = 'User';
-UPDATE users SET role = 'admin' WHERE role = 'Admin';
-UPDATE users SET role = 'super_admin' WHERE role = 'Superadmin';
+### PostgreSQL Configuration
+
+Edit `postgresql.conf` for better performance:
+
+```ini
+# Memory Settings
+shared_buffers = 256MB                    # 25% of available RAM
+effective_cache_size = 1GB                # 75% of available RAM
+work_mem = 8MB                            # Per connection memory
+maintenance_work_mem = 64MB               # Maintenance operations
+
+# Connection Settings
+max_connections = 100                     # Concurrent connections
+listen_addresses = 'localhost'           # Security restriction
+
+# Performance Settings
+random_page_cost = 1.1                   # SSD optimization
+effective_io_concurrency = 200           # SSD optimization
+checkpoint_completion_target = 0.9       # Checkpoint tuning
+wal_buffers = 16MB                        # WAL buffer size
+
+# Logging (for development)
+log_statement = 'all'                    # Log all SQL statements
+log_duration = on                        # Log query duration
+log_min_duration_statement = 1000       # Log slow queries (1 second+)
 ```
 
-### Step 4.2: New Features (Updated Schema)
-The latest version includes image upload functionality:
-
-- **Image Upload**: Users can attach screenshots and images to tickets
-- **Secure Storage**: Images are stored in `static/uploads/` directory
-- **Admin Access**: Only admins and super admins can view uploaded images
-- **File Types**: Supports JPG, JPEG, PNG, and GIF formats
-- **Category Changes**: Removed "Network" and "Other" categories, now only "Hardware" and "Software"
-
----
-
-## 5. Configure Application Connection
-
-### Step 5.1: Environment Variables
-Set these environment variables on your Windows system:
-
-1. Open **System Properties** → **Advanced** → **Environment Variables**
-2. In **System Variables**, add these new variables:
-
-```
-Variable Name: DATABASE_URL
-Variable Value: postgresql://gtn_user:gtn_password_2024@localhost:5432/gtn_helpdesk
-
-Variable Name: SESSION_SECRET
-Variable Value: your-secret-key-here-change-this-in-production
-```
-
-### Step 5.2: Alternative Configuration
-If environment variables don't work, you can also set these in your application:
+### Application-Level Optimization
 
 ```python
-# In app.py, replace the database URI with:
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://gtn_user:gtn_password_2024@localhost:5432/gtn_helpdesk"
+# app.py - Connection pooling configuration
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_size': 10,                     # Connection pool size
+    'pool_recycle': 300,                 # Recycle connections every 5 minutes
+    'pool_pre_ping': True,               # Verify connections before use
+    'pool_timeout': 20,                  # Timeout for getting connection
+    'max_overflow': 20                   # Additional connections beyond pool_size
+}
 ```
 
----
+## Backup and Maintenance
 
-## 6. Test the Connection
+### Automated Backup Script
 
-### Step 6.1: Test Database Connection
-1. Open **Command Prompt**
-2. Test connection with the application user:
-   ```cmd
-   psql -U gtn_user -d gtn_helpdesk -h localhost
-   ```
-3. If successful, you'll see:
-   ```
-   gtn_helpdesk=#
-   ```
+**Windows Batch File** (`backup_helpdesk.bat`):
+```batch
+@echo off
+set PGPASSWORD=secure_password_here
+set BACKUP_DIR=C:\Backups\GTN_Helpdesk
+set DATE=%date:~-4,4%%date:~-10,2%%date:~-7,2%
 
-### Step 6.2: Test Application
-1. Start your Flask application
-2. Check that it connects without errors
-3. Visit the application in your browser
-4. Try creating a test ticket with file attachments to verify database functionality
-5. Test uploading different file types (images, PDF, Word, Excel)
+if not exist "%BACKUP_DIR%" mkdir "%BACKUP_DIR%"
 
----
+"C:\Program Files\PostgreSQL\15\bin\pg_dump" -U helpdesk_admin -h localhost gtn_helpdesk > "%BACKUP_DIR%\gtn_helpdesk_%DATE%.sql"
 
-## 7. Troubleshooting
+echo Backup completed: %BACKUP_DIR%\gtn_helpdesk_%DATE%.sql
+```
 
-### Problem: "psql: command not found"
-**Solution**: PostgreSQL bin directory not in PATH
-1. Add `C:\Program Files\PostgreSQL\16\bin` to your PATH environment variable
-2. Restart Command Prompt
+**Linux/macOS Shell Script** (`backup_helpdesk.sh`):
+```bash
+#!/bin/bash
+export PGPASSWORD='secure_password_here'
+BACKUP_DIR="/home/backups/gtn_helpdesk"
+DATE=$(date +%Y%m%d_%H%M%S)
 
-### Problem: "Connection refused"
-**Solutions**:
-1. **Check if PostgreSQL is running**:
-   - Open **Services** (services.msc)
-   - Find "postgresql-x64-16"
-   - Ensure it's "Running"
-   - If not, right-click → Start
+mkdir -p "$BACKUP_DIR"
 
-2. **Check port availability**:
-   ```cmd
-   netstat -an | findstr :5432
-   ```
+pg_dump -U helpdesk_admin -h localhost gtn_helpdesk > "$BACKUP_DIR/gtn_helpdesk_$DATE.sql"
 
-### Problem: "Authentication failed"
-**Solutions**:
-1. **Reset postgres password**:
-   - Stop PostgreSQL service
-   - Edit `pg_hba.conf` file (in `C:\Program Files\PostgreSQL\16\data\`)
-   - Change `md5` to `trust` temporarily
-   - Restart PostgreSQL
-   - Reset password, then change back to `md5`
+echo "Backup completed: $BACKUP_DIR/gtn_helpdesk_$DATE.sql"
 
-2. **Check pg_hba.conf settings**:
-   ```
-   # Add this line for local connections:
-   host    all             all             127.0.0.1/32           md5
-   ```
+# Keep only last 7 days of backups
+find "$BACKUP_DIR" -name "gtn_helpdesk_*.sql" -mtime +7 -delete
+```
 
-### Problem: "Database does not exist"
-**Solution**: Create the database manually:
+### Regular Maintenance
+
+**Weekly Maintenance Script**:
 ```sql
-psql -U postgres
+-- Connect to database
+\c gtn_helpdesk
+
+-- Vacuum and analyze all tables
+VACUUM ANALYZE;
+
+-- Check database size
+SELECT pg_size_pretty(pg_database_size('gtn_helpdesk')) AS database_size;
+
+-- Check table sizes and row counts
+SELECT 
+    schemaname,
+    tablename,
+    pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size,
+    n_tup_ins as inserts,
+    n_tup_upd as updates,
+    n_tup_del as deletes
+FROM pg_tables 
+JOIN pg_stat_user_tables USING (tablename)
+WHERE schemaname = 'public'
+ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
+
+-- Check for slow queries (requires log analysis)
+SELECT query, calls, total_time, mean_time
+FROM pg_stat_statements
+ORDER BY mean_time DESC
+LIMIT 10;
+```
+
+## Monitoring and Troubleshooting
+
+### Connection Testing
+
+**Python Test Script** (`test_db_connection.py`):
+```python
+import os
+import psycopg2
+from urllib.parse import urlparse
+
+def test_connection():
+    try:
+        # Get database URL from environment
+        database_url = os.environ.get('DATABASE_URL')
+        if not database_url:
+            print("❌ DATABASE_URL not found in environment variables")
+            return False
+            
+        # Parse URL
+        url = urlparse(database_url)
+        
+        # Test connection
+        conn = psycopg2.connect(
+            database=url.path[1:],
+            user=url.username,
+            password=url.password,
+            host=url.hostname,
+            port=url.port
+        )
+        
+        # Test query
+        cur = conn.cursor()
+        cur.execute('SELECT version();')
+        version = cur.fetchone()
+        print(f"✅ PostgreSQL version: {version[0]}")
+        
+        # Test application tables
+        cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
+        tables = cur.fetchall()
+        print(f"✅ Found {len(tables)} tables: {[t[0] for t in tables]}")
+        
+        # Close connections
+        cur.close()
+        conn.close()
+        print("✅ Database connection test successful!")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Database connection failed: {e}")
+        return False
+
+if __name__ == "__main__":
+    test_connection()
+```
+
+### Common Issues and Solutions
+
+**Issue: Connection Refused**
+```bash
+# Check if PostgreSQL is running
+sudo systemctl status postgresql  # Linux
+brew services list | grep postgresql  # macOS
+sc query postgresql-x64-15  # Windows
+
+# Start PostgreSQL if stopped
+sudo systemctl start postgresql  # Linux
+brew services start postgresql@15  # macOS
+net start postgresql-x64-15  # Windows
+```
+
+**Issue: Authentication Failed**
+```sql
+-- Check user exists and has permissions
+\du  -- List all users
+\l   -- List all databases
+
+-- Reset user password if needed
+ALTER USER helpdesk_admin PASSWORD 'new_secure_password';
+```
+
+**Issue: Database Does Not Exist**
+```sql
+-- List databases
+\l
+
+-- Create database if missing
 CREATE DATABASE gtn_helpdesk;
 ```
 
-### Problem: Application can't connect
-**Solutions**:
-1. **Verify connection string format**:
-   ```
-   postgresql://username:password@host:port/database
-   ```
+### Performance Monitoring
 
-2. **Check firewall settings**:
-   - Ensure PostgreSQL port 5432 is not blocked
-   - Add exception for PostgreSQL in Windows Firewall
-
-3. **Verify user permissions**:
-   ```sql
-   -- Connect as postgres user
-   GRANT ALL PRIVILEGES ON DATABASE gtn_helpdesk TO gtn_user;
-   GRANT ALL ON ALL TABLES IN SCHEMA public TO gtn_user;
-   GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO gtn_user;
-   ```
-
----
-
-## Additional Configuration
-
-### Enable Remote Connections (Optional)
-If you need to access the database from other computers:
-
-1. **Edit postgresql.conf**:
-   ```
-   listen_addresses = '*'
-   ```
-
-2. **Edit pg_hba.conf**:
-   ```
-   host    all             all             0.0.0.0/0               md5
-   ```
-
-3. **Restart PostgreSQL service**
-
-### Performance Tuning (Optional)
-For better performance, edit `postgresql.conf`:
-
-```
-shared_buffers = 256MB
-effective_cache_size = 1GB
-maintenance_work_mem = 64MB
-checkpoint_completion_target = 0.7
-wal_buffers = 16MB
-default_statistics_target = 100
-random_page_cost = 1.1
+**Monitor Active Connections**:
+```sql
+SELECT 
+    pid,
+    usename,
+    application_name,
+    client_addr,
+    state,
+    query_start,
+    query
+FROM pg_stat_activity
+WHERE state = 'active';
 ```
 
----
+**Check Index Usage**:
+```sql
+SELECT 
+    schemaname,
+    tablename,
+    indexname,
+    idx_scan,
+    idx_tup_read,
+    idx_tup_fetch
+FROM pg_stat_user_indexes
+ORDER BY idx_scan DESC;
+```
 
-## Default Login Credentials
+## Production Deployment Checklist
 
-After first setup, use these default accounts:
+### Security Configuration
 
-### Super Admin
-- **Username**: `superadmin`
-- **Password**: `super123`
-- **Role**: Super Administrator (full access)
+1. **Database Security**:
+   - [ ] Use strong passwords for all database users
+   - [ ] Configure `pg_hba.conf` for proper authentication
+   - [ ] Enable SSL connections in production
+   - [ ] Regular security updates
 
-### Test Admin Users
-- **Username**: `yuvaraj` / Password: `admin123`
-- **Username**: `jayachandran` / Password: `admin123`
-- **Username**: `narainkarthik` / Password: `admin123`
+2. **Network Security**:
+   - [ ] Configure firewall rules (allow only necessary connections)
+   - [ ] Use connection pooling (pgbouncer recommended)
+   - [ ] Monitor connection attempts
 
-### Test Regular User
-- **Username**: `testuser` / Password: `user123`
+3. **Application Security**:
+   - [ ] Set strong `SESSION_SECRET` in environment variables
+   - [ ] Enable CSRF protection
+   - [ ] Use environment variables for sensitive configuration
 
-**Important**: Change these default passwords immediately after first login!
+### Performance Configuration
 
----
+1. **Database Tuning**:
+   - [ ] Optimize PostgreSQL configuration for available hardware
+   - [ ] Set up proper indexing strategy
+   - [ ] Configure connection pooling
 
-## Security Recommendations
+2. **Application Tuning**:
+   - [ ] Enable SQLAlchemy query optimization
+   - [ ] Implement database connection pooling
+   - [ ] Set up query monitoring
 
-1. **Change default passwords** immediately
-2. **Use strong passwords** (minimum 12 characters)
-3. **Enable SSL/TLS** for production
-4. **Regular backups**:
-   ```cmd
-   pg_dump -U gtn_user gtn_helpdesk > backup.sql
-   ```
-5. **Keep PostgreSQL updated**
-6. **Monitor database logs** regularly
+### Backup and Recovery
 
----
+1. **Backup Strategy**:
+   - [ ] Set up automated daily backups
+   - [ ] Test backup restoration procedures
+   - [ ] Configure off-site backup storage
+   - [ ] Document recovery procedures
 
-## Support
+2. **Monitoring**:
+   - [ ] Set up database performance monitoring
+   - [ ] Configure alerting for critical issues
+   - [ ] Regular maintenance scheduling
 
-If you encounter issues not covered in this guide:
-1. Check PostgreSQL logs in: `C:\Program Files\PostgreSQL\16\data\log\`
-2. Consult PostgreSQL official documentation
-3. Contact your system administrator
-
----
-
-## 6. Recent Updates
-
-### June 28, 2025 - User Role & Email Notification Fixes
-- **User Role Fix**: Resolved bug where 'super_admin' role wasn't properly saved due to form choice mismatch
-- **SMTP Email Integration**: Enhanced email notification system with:
-  - Secure environment variable configuration (SMTP_USERNAME, SMTP_PASSWORD)
-  - Automatic email notifications when Super Admins assign tickets to users
-  - Proper error handling and logging for troubleshooting
-  - Support for Gmail and other SMTP providers
-- **JavaScript Fixes**: Resolved GTNHelpdesk.addCharacterCounter errors in user edit forms
-
-### June 27, 2025 - Replit Migration & Enhanced Features
-- **Replit Integration**: Successfully migrated to Replit environment with automatic PostgreSQL provisioning
-- **Enhanced Ticket History**: Updated ticket history display with new format:
-  - Created By: Shows ticket creator with timestamp
-  - Assigned By: Shows who assigned the ticket (or "Not assigned")
-  - Assigned To: Shows current assignee (or "Not assigned") 
-  - Status: Shows current status with colored badge
-- **Bug Fixes**: Resolved edit ticket page errors and template issues
-- **Security Improvements**: Enhanced client/server separation and secure configuration
-
-### Previous Updates
-- **June 26, 2025**: Enhanced user management system with CRUD operations
-- **June 23, 2025**: Improved file upload system supporting PDF, Word, Excel files
-- **June 22, 2025**: Added visual reports dashboard and MySQL support
-- **June 21, 2025**: Initial PostgreSQL integration and setup
-
----
-
-**Last Updated**: June 28, 2025  
-**Compatible with**: PostgreSQL 15, 16+ on Replit and local development environments
+This comprehensive guide ensures proper PostgreSQL setup and integration with the GTN Engineering IT Helpdesk System for both development and production environments.
