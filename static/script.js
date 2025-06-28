@@ -361,6 +361,69 @@ function showKeyboardShortcuts() {
     modal.show();
 }
 
+/**
+ * Smooth scroll to features section (for home page)
+ */
+function scrollToFeatures() {
+    const featuresSection = document.getElementById('features');
+    if (featuresSection) {
+        featuresSection.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+}
+
+/**
+ * Initialize home page specific functionality
+ */
+function initializeHomePage() {
+    // Add parallax effect to hero section
+    const heroSection = document.querySelector('.hero-section');
+    if (heroSection) {
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const parallax = scrolled * 0.5;
+            
+            const heroGradient = document.querySelector('.hero-gradient');
+            if (heroGradient) {
+                heroGradient.style.transform = `translateY(${parallax}px)`;
+            }
+        });
+    }
+    
+    // Animate feature cards on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe feature cards and role cards
+    document.querySelectorAll('.feature-card, .role-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+}
+
+// Initialize home page features if on home page
+document.addEventListener('DOMContentLoaded', function() {
+    const isHomePage = document.querySelector('.hero-section');
+    if (isHomePage) {
+        initializeHomePage();
+    }
+});
+
 // Export functions for global use
 window.GTNHelpdesk = {
     showNotification: showNotification,
@@ -368,5 +431,6 @@ window.GTNHelpdesk = {
     formatDate: formatDate,
     copyToClipboard: copyToClipboard,
     validateForm: validateForm,
-    handleFormSubmit: handleFormSubmit
+    handleFormSubmit: handleFormSubmit,
+    scrollToFeatures: scrollToFeatures
 };
