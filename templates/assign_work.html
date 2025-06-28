@@ -64,7 +64,9 @@
                         <h6><i class="ri-team-line"></i> Available Admins for {{ ticket.category }}</h6>
                     </div>
                     <div class="card-body">
+                        {% if admins %}
                             <div class="row">
+                                {% for admin in admins %}
                                     <div class="col-md-6 mb-3">
                                         <div class="card">
                                             <div class="card-body">

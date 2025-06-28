@@ -618,13 +618,8 @@ def assign_work(ticket_id):
     
     ticket = Ticket.query.get_or_404(ticket_id)
     
-    # Get appropriate admins based on ticket category
-    if ticket.category in ['Hardware']:
-        admins = User.query.filter_by(role='admin', department='IT Hardware').all()
-    elif ticket.category in ['Software']:
-        admins = User.query.filter_by(role='admin', department='IT Software').all()
-    else:
-        admins = User.query.filter_by(role='admin').all()
+    # Get all super admins for assignment (simplified role structure)
+    admins = User.query.filter_by(role='super_admin').all()
     
     form = AssignTicketForm()
     form.assigned_to.choices = [(admin.id, f"{admin.full_name} ({admin.department})") for admin in admins]
