@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}View User - {{ user.full_name }} - GTN Engineering IT Helpdesk{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3><i class="ri-user-line"></i> User Details</h3>
+                    <div>
+                        <a href="{{ url_for('edit_user', user_id=user.id) }}" class="btn btn-warning me-2">
+                            <i class="ri-edit-line"></i> Edit User
+                        </a>
+                        <a href="{{ url_for('manage_users') }}" class="btn btn-secondary">
+                            <i class="ri-arrow-left-line"></i> Back to Users
+                        </a>
+                    </div>
+                </div>
+
+                <!-- User Information Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6><i class="ri-information-line"></i> User Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td><strong>User ID:</strong></td>
+                                        <td>{{ user.id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Username:</strong></td>
+                                        <td>{{ user.username }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Full Name:</strong></td>
+                                        <td>{{ user.full_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Email:</strong></td>
+                                        <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Department:</strong></td>
+                                        <td>{{ user.department or 'N/A' }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td><strong>Role:</strong></td>
+                                        <td>
+                                            {% if user.role == 'super_admin' %}
+                                                <span class="badge bg-danger">Super Admin</span>
+                                            {% elif user.role == 'admin' %}
+                                                <span class="badge bg-warning">Admin</span>
+                                            {% else %}
+                                                <span class="badge bg-info">User</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>IP Address:</strong></td>
+                                        <td><code>{{ user.ip_address or 'N/A' }}</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>System Name:</strong></td>
+                                        <td><code>{{ user.system_name or 'N/A' }}</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Created Date:</strong></td>
+                                      <td>{{ user.created_at|to_ist }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User's Tickets -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6><i class="ri-file-list-line"></i> User's Tickets ({{ user_tickets|length }})</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if user_tickets %}
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Ticket #</th>
+                                            <th>Title</th>
+                                            <th>Category</th>
+                                            <th>Priority</th>
+                                            <th>Status</th>
+                                            <th>Created</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ticket in user_tickets[:10] %}
+                                            <tr>
+                                                <td><strong>#{{ ticket.ticket_number }}</strong></td>
+                                                <td>{{ ticket.title }}</td>
+                                                <td>
+                                                    <span class="badge bg-secondary">{{ ticket.category }}</span>
+                                                </td>
+                                                <td>
+                                                    {% if ticket.priority == 'Critical' %}
+                                                        <span class="badge bg-danger">{{ ticket.priority }}</span>
+                                                    {% elif ticket.priority == 'High' %}
+                                                        <span class="badge bg-warning">{{ ticket.priority }}</span>
+                                                    {% elif ticket.priority == 'Medium' %}
+                                                        <span class="badge bg-info">{{ ticket.priority }}</span>
+                                                    {% else %}
+                                                        <span class="badge bg-success">{{ ticket.priority }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if ticket.status == 'Open' %}
+                                                        <span class="badge bg-primary">{{ ticket.status }}</span>
+                                                    {% elif ticket.status == 'In Progress' %}
+                                                        <span class="badge bg-warning">{{ ticket.status }}</span>
+                                                    {% elif ticket.status == 'Resolved' %}
+                                                        <span class="badge bg-success">{{ ticket.status }}</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">{{ ticket.status }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ ticket.created_at.strftime('%Y-%m-%d') }}</td>
+                                                <td>
+                                                    <a href="{{ url_for('view_ticket', ticket_id=ticket.id) }}" 
+                                                       class="btn btn-sm btn-outline-primary" title="View Ticket">
+                                                        <i class="ri-eye-line"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% if user_tickets|length > 10 %}
+                                <p class="text-muted mt-2">Showing 10 of {{ user_tickets|length }} tickets</p>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="ri-file-list-line" style="font-size: 48px; color: #6c757d;"></i>
+                                <h6 class="mt-2">No tickets created</h6>
+                                <p class="text-muted">This user hasn't created any tickets yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Assigned Tickets (for Admins) -->
+                {% if assigned_tickets %}
+                <div class="card">
+                    <div class="card-header">
+                        <h6><i class="ri-task-line"></i> Assigned Tickets ({{ assigned_tickets|length }})</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Ticket #</th>
+                                        <th>Title</th>
+                                        <th>Category</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Created By</th>
+                                        <th>Assigned Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ticket in assigned_tickets[:10] %}
+                                        <tr>
+                                            <td><strong>#{{ ticket.ticket_number }}</strong></td>
+                                            <td>{{ ticket.title }}</td>
+                                            <td>
+                                                <span class="badge bg-secondary">{{ ticket.category }}</span>
+                                            </td>
+                                            <td>
+                                                {% if ticket.priority == 'Critical' %}
+                                                    <span class="badge bg-danger">{{ ticket.priority }}</span>
+                                                {% elif ticket.priority == 'High' %}
+                                                    <span class="badge bg-warning">{{ ticket.priority }}</span>
+                                                {% elif ticket.priority == 'Medium' %}
+                                                    <span class="badge bg-info">{{ ticket.priority }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-success">{{ ticket.priority }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if ticket.status == 'Open' %}
+                                                    <span class="badge bg-primary">{{ ticket.status }}</span>
+                                                {% elif ticket.status == 'In Progress' %}
+                                                    <span class="badge bg-warning">{{ ticket.status }}</span>
+                                                {% elif ticket.status == 'Resolved' %}
+                                                    <span class="badge bg-success">{{ ticket.status }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ ticket.status }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ ticket.user_name }}</td>
+                                            <td>{{ ticket.updated_at.strftime('%Y-%m-%d') if ticket.updated_at else 'N/A' }}</td>
+                                            <td>
+                                                <a href="{{ url_for('view_ticket', ticket_id=ticket.id) }}" 
+                                                   class="btn btn-sm btn-outline-primary" title="View Ticket">
+                                                    <i class="ri-eye-line"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if assigned_tickets|length > 10 %}
+                            <p class="text-muted mt-2">Showing 10 of {{ assigned_tickets|length }} assigned tickets</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

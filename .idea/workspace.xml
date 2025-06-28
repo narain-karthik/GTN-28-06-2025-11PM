@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0b960520-3a60-4268-9a09-a2b3a6b3ae86" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.replit" beforeDir="false" afterPath="$PROJECT_DIR$/.replit" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README_Database_Schema.md" beforeDir="false" afterPath="$PROJECT_DIR$/README_Database_Schema.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README_PostgreSQL_Setup.md" beforeDir="false" afterPath="$PROJECT_DIR$/README_PostgreSQL_Setup.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/replit.md" beforeDir="false" afterPath="$PROJECT_DIR$/replit.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/admin_dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin_dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/create_ticket.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/create_ticket.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/edit_ticket.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/edit_ticket.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/reports_dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/reports_dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/super_admin_dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/super_admin_dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/user_dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/user_dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/view_ticket.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/view_ticket.html" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="2z2G30VUJqmCRxq3La6JNp8qHA5" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.asset.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.test.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/plit04/OneDrive - GTN Engineering (I) Ltd/Narain_IT/Desktop/NK 2025/GTN-Engg-ITHelpdesk",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-53e2683a6804-9cdd278e9d02-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-251.26094.141" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0b960520-3a60-4268-9a09-a2b3a6b3ae86" name="Changes" comment="" />
+      <created>1750921552189</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1750921552189</updated>
+    </task>
+    <servers />
+  </component>
+</project>

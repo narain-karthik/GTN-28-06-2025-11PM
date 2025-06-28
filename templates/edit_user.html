@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User - {{ user.full_name }} - GTN Engineering IT Helpdesk{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3><i class="ri-edit-line"></i> Edit User</h3>
+                    <div>
+                        <a href="{{ url_for('view_user', user_id=user.id) }}" class="btn btn-info me-2">
+                            <i class="ri-eye-line"></i> View Details
+                        </a>
+                        <a href="{{ url_for('manage_users') }}" class="btn btn-secondary">
+                            <i class="ri-arrow-left-line"></i> Back to Users
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <!-- Edit User Form -->
+                        <div class="card">
+    <div class="card-header">
+        <h6><i class="ri-user-settings-line"></i> User Information</h6>
+    </div>
+    <div class="card-body">
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <!-- Username (editable) -->
+            <div class="mb-3">
+                {{ form.username.label(class="form-label") }}
+                {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
+                {% if form.username.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.username.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Role (editable) -->
+            <div class="mb-3">
+    {{ form.role.label(class="form-label") }}
+    {{ form.role(class="form-control" + (" is-invalid" if form.role.errors else "")) }}
+    {% if form.role.errors %}
+        <div class="invalid-feedback">
+            {% for error in form.role.errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.first_name.label(class="form-label") }}
+                        {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else "")) }}
+                        {% if form.first_name.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.first_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.last_name.label(class="form-label") }}
+                        {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else "")) }}
+                        {% if form.last_name.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.last_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+                {% if form.email.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.email.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.department.label(class="form-label") }}
+                        {{ form.department(class="form-control" + (" is-invalid" if form.department.errors else "")) }}
+                        {% if form.department.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.department.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.system_name.label(class="form-label") }}
+                        {{ form.system_name(class="form-control" + (" is-invalid" if form.system_name.errors else "")) }}
+                        {% if form.system_name.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.system_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password (editable) -->
+            <div class="mb-3">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
+                {% if form.password.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.password.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <small class="text-muted">Leave blank to keep the current password.</small>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <div>
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('view_user', user_id=user.id) }}" class="btn btn-secondary ms-2">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!--Form Ends -->
+                    <div class="col-md-4">
+                        <!-- User Summary Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="ri-information-line"></i> User Summary</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-borderless table-sm">
+                                    <tr>
+                                        <td><strong>Username:</strong></td>
+                                        <td>{{ user.username }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>User ID:</strong></td>
+                                        <td>{{ user.id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Role:</strong></td>
+                                        <td>
+                                            {% if user.role == 'super_admin' %}
+                                                <span class="badge bg-danger">Super Admin</span>
+                                            {% elif user.role == 'admin' %}
+                                                <span class="badge bg-warning">Admin</span>
+                                            {% else %}
+                                                <span class="badge bg-info">User</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Created:</strong></td>
+                                        <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>IP Address:</strong></td>
+                                        <td><code>{{ user.ip_address or 'N/A' }}</code></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Note Card -->
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h6><i class="ri-information-line"></i> Important Notes</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <small>
+                                        <i class="ri-information-line"></i>
+                                        <strong>Note:</strong> This form only updates basic user information. 
+                                        Username and role changes require additional security verification.
+                                    </small>
+                                </div>
+                                <div class="alert alert-warning">
+                                    <small>
+                                        <i class="ri-shield-line"></i>
+                                        <strong>Security:</strong> User password changes must be requested 
+                                        through the password reset system.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    form.addEventListener('submit', function(e) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...';
+    });
+    
+    // Character counters for form fields
+    const fields = ['first_name', 'last_name', 'email', 'department', 'system_name'];
+    fields.forEach(fieldName => {
+        const field = document.getElementById(fieldName);
+        if (field) {
+            addCharacterCounter(field);
+        }
+    });
+});
+</script>
+{% endblock %}
