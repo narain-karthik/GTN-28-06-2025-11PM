@@ -44,15 +44,15 @@ def login_required(f):
     decorated_function.__name__ = f.__name__
     return decorated_function
 
-# Helper function to require admin
-def admin_required(f):
+# Helper function to require super admin
+def super_admin_required(f):
     def decorated_function(*args, **kwargs):
         if not is_logged_in():
             flash('Please log in to access this page.', 'warning')
             return redirect(url_for('common_login'))
         user = get_current_user()
-        if not user or not user.is_admin:
-            flash('Admin access required.', 'error')
+        if not user or not user.is_super_admin:
+            flash('Super Admin access required.', 'error')
             return redirect(url_for('index'))
         return f(*args, **kwargs)
     decorated_function.__name__ = f.__name__
@@ -71,8 +71,6 @@ def common_login():
         # Redirect to appropriate dashboard based on role
         if user.is_super_admin:
             return redirect(url_for('super_admin_dashboard'))
-        elif user.is_admin:
-            return redirect(url_for('admin_dashboard'))
         else:
             return redirect(url_for('user_dashboard'))
     
@@ -82,7 +80,6 @@ def common_login():
         if user and user.check_password(form.password.data):
             # Set session variables
             session['user_id'] = user.id
-            session['is_admin'] = user.is_admin
             session['role'] = user.role
             
             # Update IP address and system info
@@ -98,8 +95,6 @@ def common_login():
             # Route to appropriate dashboard based on role
             if user.is_super_admin:
                 return redirect(url_for('super_admin_dashboard'))
-            elif user.is_admin:
-                return redirect(url_for('admin_dashboard'))
             else:
                 return redirect(url_for('user_dashboard'))
         else:
@@ -177,7 +172,7 @@ def user_profile():
     return render_template('user_profile.html', form=form, user=user)
 
 @app.route('/super-admin-dashboard')
-@admin_required
+@super_admin_required
 def super_admin_dashboard():
     """Super Admin dashboard with full system overview and filters"""
     user = get_current_user()
@@ -247,51 +242,7 @@ def super_admin_dashboard():
         year_filter=year_filter
     )
 
-@app.route('/admin-dashboard')
-@admin_required
-def admin_dashboard():
-    """Admin dashboard showing assigned tickets"""
-    user = get_current_user()
-    
-    # Get filter parameters
-    status_filter = request.args.get('status', 'all')
-    priority_filter = request.args.get('priority', 'all')
-    category_filter = request.args.get('category', 'all')
-    search_query = request.args.get('search', '')
-    
-    # Build query - only show tickets assigned to this admin
-    query = Ticket.query.filter_by(assigned_to=user.id)
-    
-    if status_filter != 'all':
-        query = query.filter_by(status=status_filter)
-    
-    if priority_filter != 'all':
-        query = query.filter_by(priority=priority_filter)
-    
-    if category_filter != 'all':
-        query = query.filter_by(category=category_filter)
-    
-    if search_query:
-        query = query.filter(Ticket.title.contains(search_query))
-    
-    tickets = query.order_by(Ticket.created_at.desc()).all()
-    
-    # Get statistics for assigned tickets
-    total_assigned = Ticket.query.filter_by(assigned_to=user.id).count()
-    open_assigned = Ticket.query.filter_by(assigned_to=user.id, status='Open').count()
-    in_progress_assigned = Ticket.query.filter_by(assigned_to=user.id, status='In Progress').count()
-    resolved_assigned = Ticket.query.filter_by(assigned_to=user.id, status='Resolved').count()
-    
-    stats = {
-        'total': total_assigned,
-        'open': open_assigned,
-        'in_progress': in_progress_assigned,
-        'resolved': resolved_assigned
-    }
-    
-    return render_template('admin_dashboard.html', tickets=tickets, stats=stats,
-                         status_filter=status_filter, priority_filter=priority_filter,
-                         category_filter=category_filter, search_query=search_query, admin_user=user)
+
 
 
 @app.route('/create-ticket', methods=['GET', 'POST'])
@@ -395,11 +346,11 @@ def view_ticket(ticket_id):
     user = get_current_user()
     
     # Check if user can view this ticket
-    if not user.is_admin and ticket.user_id != user.id:
+    if not user.is_super_admin and ticket.user_id != user.id:
         abort(403)
     
     form = CommentForm()
-    assign_form = AssignTicketForm() if user.is_admin else None
+    assign_form = AssignTicketForm() if user.is_super_admin else None
     
     return render_template('view_ticket.html', ticket=ticket, form=form, 
                          assign_form=assign_form, user=user)
@@ -412,7 +363,7 @@ def add_comment(ticket_id):
     user = get_current_user()
     
     # Check if user can comment on this ticket
-    if not user.is_admin and ticket.user_id != user.id:
+    if not user.is_super_admin and ticket.user_id != user.id:
         abort(403)
     
     form = CommentForm()
@@ -431,7 +382,7 @@ def add_comment(ticket_id):
     return redirect(url_for('view_ticket', ticket_id=ticket_id))
 
 @app.route('/ticket/<int:ticket_id>/edit', methods=['GET', 'POST'])
-@admin_required
+@super_admin_required
 def edit_ticket(ticket_id):
     """Edit ticket (admin only)"""
     ticket = Ticket.query.get_or_404(ticket_id)
@@ -478,7 +429,7 @@ def edit_ticket(ticket_id):
 
 
 @app.route('/ticket/<int:ticket_id>/assign', methods=['POST'])
-@admin_required
+@super_admin_required
 def assign_ticket(ticket_id):
     """Assign ticket to admin"""
     ticket = Ticket.query.get_or_404(ticket_id)
@@ -506,7 +457,7 @@ def assign_ticket(ticket_id):
 
 
 @app.route('/edit-user/<int:user_id>', methods=['GET', 'POST'])
-@admin_required
+@super_admin_required
 def edit_user(user_id):
     """Edit user (Super Admin only)"""
     current_user = get_current_user()
@@ -545,7 +496,7 @@ def edit_user(user_id):
     return render_template('edit_user.html', form=form, user=user)
 
 @app.route('/manage-users')
-@admin_required
+@super_admin_required
 def manage_users():
     """Super Admin user management"""
     user = get_current_user()
@@ -557,7 +508,7 @@ def manage_users():
     return render_template('manage_users.html', users=users)
 
 @app.route('/create-user', methods=['GET', 'POST'])
-@admin_required
+@super_admin_required
 def create_user():
     """Create new user (Super Admin only)"""
     user = get_current_user()
@@ -573,8 +524,7 @@ def create_user():
             first_name=form.first_name.data,
             last_name=form.last_name.data,
             department=form.department.data,
-            role=form.role.data,
-            is_admin=(form.role.data in ['admin', 'super_admin'])
+            role=form.role.data
         )
         new_user.set_password(form.password.data)
         db.session.add(new_user)
@@ -586,7 +536,7 @@ def create_user():
     return render_template('create_user.html', form=form)
 
 @app.route('/view-user/<int:user_id>')
-@admin_required
+@super_admin_required
 def view_user(user_id):
     """View user details (Super Admin only)"""
     current_user = get_current_user()
@@ -604,7 +554,7 @@ def view_user(user_id):
 
 
 @app.route('/delete-user/<int:user_id>', methods=['POST'])
-@admin_required
+@super_admin_required
 def delete_user(user_id):
     """Delete user (Super Admin only)"""
     current_user = get_current_user()
@@ -658,7 +608,7 @@ def delete_user(user_id):
     return redirect(url_for('manage_users'))
 
 @app.route('/assign-work/<int:ticket_id>', methods=['GET', 'POST'])
-@admin_required
+@super_admin_required
 def assign_work(ticket_id):
     """Super Admin assigns work to specific admins based on category"""
     user = get_current_user()
@@ -704,8 +654,7 @@ def create_default_admin():
                 first_name='Super',
                 last_name='Administrator',
                 department='IT',
-                role='super_admin',
-                is_admin=True
+                role='super_admin'
             )
             super_admin_user.set_password('super123')
             db.session.add(super_admin_user)
@@ -718,8 +667,7 @@ def create_default_admin():
                 first_name='Test',
                 last_name='User',
                 department='Engineering',
-                role='user',
-                is_admin=False
+                role='user'
             )
             test_user.set_password('test123')
             db.session.add(test_user)
@@ -731,7 +679,7 @@ def create_default_admin():
         db.session.rollback()
 
 @app.route('/reports-dashboard')
-@admin_required
+@super_admin_required
 def reports_dashboard():
     """Reports Dashboard with visual analytics (Super Admin only)"""
     current_user = get_current_user()
@@ -787,7 +735,7 @@ def reports_dashboard():
     return render_template('reports_dashboard.html', stats=stats, tickets=all_tickets, chart_data=chart_data)
 
 @app.route('/edit-assignment/<int:ticket_id>', methods=['GET', 'POST'])
-@admin_required
+@super_admin_required
 def edit_assignment(ticket_id):
     """Edit ticket assignment (Super Admin only)"""
     current_user = get_current_user()
@@ -818,7 +766,7 @@ def edit_assignment(ticket_id):
             logging.error(f"Error updating ticket assignment: {e}")
     
     # Get all admin users for assignment dropdown
-    admin_users = User.query.filter_by(is_admin=True).all()
+    admin_users = User.query.filter_by(role="super_admin").all()
     
     return render_template('edit_assignment.html', ticket=ticket, admin_users=admin_users)
 
@@ -834,7 +782,7 @@ def view_image(filename):
         abort(404)
     
     # Check permissions - admins can view any, users only their own tickets
-    if not current_user.is_admin and ticket.user_id != current_user.id:
+    if not current_user.is_super_admin and ticket.user_id != current_user.id:
         abort(403)
     
     try:
@@ -854,7 +802,7 @@ def download_attachment(filename):
         abort(404)
     
     # Check permissions - admins can download any, users only their own tickets
-    if not current_user.is_admin:
+    if not current_user.is_super_admin:
         ticket = Ticket.query.get(attachment.ticket_id)
         if not ticket or ticket.user_id != current_user.id:
             abort(403)
@@ -865,7 +813,7 @@ def download_attachment(filename):
         abort(404)
 
 @app.route('/download-excel-report')
-@admin_required
+@super_admin_required
 def download_excel_report():
     """Download Excel report of all tickets (Super Admin only) with filtering options"""
     current_user = get_current_user()

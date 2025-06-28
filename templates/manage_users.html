@@ -47,7 +47,6 @@
                                                 <td>
                                                     {% if user.role == 'super_admin' %}
                                                         <span class="badge bg-danger">Super Admin</span>
-                                                    {% elif user.role == 'admin' %}
                                                         <span class="badge bg-warning">Admin</span>
                                                     {% else %}
                                                         <span class="badge bg-info">User</span>
@@ -106,7 +105,7 @@
                         <div class="card text-center">
                             <div class="card-body">
                                 <i class="ri-shield-user-line text-warning" style="font-size: 2rem;"></i>
-                                <h5 class="card-title">{{ users|selectattr("role", "equalto", "admin")|list|length }}</h5>
+                                <h5 class="card-title">{{ users|selectattr("role", "equalto", "super_admin")|list|length }}</h5>
                                 <p class="card-text">Admins</p>
                             </div>
                         </div>

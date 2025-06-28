@@ -33,11 +33,10 @@
             <nav class="menu">
                 {% if session.user_id %}
                     {% if session.role == 'super_admin' %}
-                        <a href="{{ url_for('super_admin_dashboard') }}"><i class="ri-dashboard-line"></i> Dashboard</a>
+                        <a href="{{ url_for('super_super_admin_dashboard') }}"><i class="ri-dashboard-line"></i> Dashboard</a>
                         <a href="{{ url_for('manage_users') }}"><i class="ri-team-line"></i> Users</a>
                         <a href="{{ url_for('logout') }}"><i class="ri-logout-box-line"></i> Logout</a>
-                    {% elif session.is_admin %}
-                        <a href="{{ url_for('admin_dashboard') }}"><i class="ri-dashboard-line"></i> Dashboard</a>
+
                         <a href="{{ url_for('logout') }}"><i class="ri-logout-box-line"></i> Logout</a>
                     {% else %}
                         <a href="{{ url_for('user_dashboard') }}"><i class="ri-dashboard-line"></i> My Tickets</a>
@@ -47,7 +46,7 @@
                     {% endif %}
                 {% else %}
                     <a href="{{ url_for('user_login') }}"><i class="ri-user-line"></i> User Login</a>
-                    <a href="{{ url_for('admin_login') }}"><i class="ri-shield-user-line"></i> Admin Login</a>
+
                 {% endif %}
             </nav>
         </div>

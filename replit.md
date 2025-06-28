@@ -102,6 +102,11 @@ The GTN Engineering IT Helpdesk System is a comprehensive Flask-based web applic
 
 ## Changelog
 
+- June 28, 2025: Successfully completed Admin role removal from the entire system - now only supports User and Super Admin roles for simplified management
+- June 28, 2025: Updated all forms, routes, models, and templates to remove Admin role references and cleaned up access control logic
+- June 28, 2025: Removed admin_dashboard.html template and admin_dashboard route as they're no longer needed
+- June 28, 2025: Updated role-based access control to use super_admin_required decorator instead of admin_required
+- June 28, 2025: Successfully completed migration from Replit Agent to Replit environment with PostgreSQL database and secure session management
 - June 28, 2025: Simplified default user creation to only include Super Admin and test user (removed all default admin accounts)
 - June 28, 2025: Cleaned up project by removing unwanted files (__pycache__ directories, obsolete login templates, test upload files) and added comprehensive .gitignore
 - June 28, 2025: Enhanced Super Admin privileges to allow full control over all user accounts including other Super Admin accounts

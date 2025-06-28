@@ -14,7 +14,6 @@
                         <form method="POST">
                             {{ form.hidden_tag() }}
                             
-                            <!-- All users (admins and super admins): Only edit status -->
                             <div class="alert alert-info">
                                 <i class="ri-information-line"></i> You can only update the ticket status. Other ticket details cannot be modified after creation.
                             </div>
@@ -62,7 +61,6 @@
                                     <label for="admin_comment" class="form-label">Add Comment (Super Admin)</label>
                                     <textarea name="admin_comment" id="admin_comment" class="form-control" rows="3" 
                                               placeholder="Add a comment about this status update..."></textarea>
-                                    <small class="form-text text-muted">This comment will be visible to users and admins.</small>
                                 </div>
                             {% endif %}
                             

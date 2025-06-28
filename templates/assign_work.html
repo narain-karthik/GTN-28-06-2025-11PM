@@ -45,12 +45,11 @@
                                     </div>
                                 {% endif %}
                                 <div class="form-text">
-                                    Based on the ticket category "{{ ticket.category }}", the following admins are recommended.
                                 </div>
                             </div>
                             
                             <div class="d-flex justify-content-between">
-                                <a href="{{ url_for('super_admin_dashboard') }}" class="btn btn-secondary">
+                                <a href="{{ url_for('super_super_admin_dashboard') }}" class="btn btn-secondary">
                                     <i class="ri-arrow-left-line"></i> Back to Dashboard
                                 </a>
                                 {{ form.submit(class="btn btn-primary") }}
@@ -65,9 +64,7 @@
                         <h6><i class="ri-team-line"></i> Available Admins for {{ ticket.category }}</h6>
                     </div>
                     <div class="card-body">
-                        {% if admins %}
                             <div class="row">
-                                {% for admin in admins %}
                                     <div class="col-md-6 mb-3">
                                         <div class="card">
                                             <div class="card-body">
@@ -85,7 +82,6 @@
                             </div>
                         {% else %}
                             <div class="alert alert-warning">
-                                <i class="ri-alert-line"></i> No admins available for this category. 
                                 Please assign to a general admin or create specialized admin accounts.
                             </div>
                         {% endif %}

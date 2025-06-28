@@ -12,8 +12,7 @@ class User(db.Model):
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
     department = db.Column(db.String(100), nullable=True)
-    role = db.Column(db.String(50), nullable=False, default='User')  # user, admin, super_admin
-    is_admin = db.Column(db.Boolean, default=False)
+    role = db.Column(db.String(50), nullable=False, default='user')  # user, super_admin
     ip_address = db.Column(db.String(45), nullable=True)  # IPv4/IPv6
     system_name = db.Column(db.String(100), nullable=True)
     profile_image = db.Column(db.String(200), nullable=True)
@@ -40,9 +39,7 @@ class User(db.Model):
     def is_super_admin(self):
         return self.role == 'super_admin'
     
-    @property
-    def is_regular_admin(self):
-        return self.role == 'admin'
+
     
     def __repr__(self):
         return f'<User {self.username}>'
