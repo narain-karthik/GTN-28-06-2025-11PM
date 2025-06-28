@@ -8,6 +8,7 @@ from models import User, Ticket, TicketComment, Attachment
 from forms import LoginForm, TicketForm, UpdateTicketForm, CommentForm, UserRegistrationForm, AssignTicketForm, UserProfileForm
 from datetime import datetime
 from utils.email import send_assignment_email  # Add this import
+from utils.timezone import utc_to_ist
 import logging
 import os
 import socket
@@ -880,9 +881,9 @@ def download_excel_report():
                 getattr(ticket, 'user_ip_address', 'N/A') or 'N/A',
                 assignee_name,
                 assigner_name,
-                ticket.created_at.strftime('%Y-%m-%d %H:%M:%S') if ticket.created_at else 'N/A',
-                ticket.updated_at.strftime('%Y-%m-%d %H:%M:%S') if ticket.updated_at else 'N/A',
-                ticket.resolved_at.strftime('%Y-%m-%d %H:%M:%S') if ticket.resolved_at else 'N/A'
+                utc_to_ist(ticket.created_at).strftime('%Y-%m-%d %H:%M:%S') if ticket.created_at else 'N/A',
+                utc_to_ist(ticket.updated_at).strftime('%Y-%m-%d %H:%M:%S') if ticket.updated_at else 'N/A',
+                utc_to_ist(ticket.resolved_at).strftime('%Y-%m-%d %H:%M:%S') if ticket.resolved_at else 'N/A'
             ]
             for col, value in enumerate(data, 1):
                 ws.cell(row=row, column=col, value=value)
