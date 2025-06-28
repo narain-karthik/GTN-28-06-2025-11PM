@@ -48,7 +48,11 @@ db.init_app(app)
 
 @app.template_filter('to_ist')
 def to_ist_filter(dt):
-    return utc_to_ist(dt).strftime('%Y-%m-%d %H:%M:%S') if dt else ''
+    if dt:
+        converted_dt = utc_to_ist(dt)
+        if converted_dt:
+            return converted_dt.strftime('%Y-%m-%d %H:%M:%S')
+    return ''
 
 # Add custom Jinja2 filter for line breaks
 @app.template_filter('nl2br')

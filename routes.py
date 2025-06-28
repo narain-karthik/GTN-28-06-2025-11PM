@@ -882,7 +882,7 @@ def download_excel_report():
                 assigner_name,
                 ticket.created_at.strftime('%Y-%m-%d %H:%M:%S') if ticket.created_at else 'N/A',
                 ticket.updated_at.strftime('%Y-%m-%d %H:%M:%S') if ticket.updated_at else 'N/A',
-                ticket.resolved_at.strftime('%Y-%m-%d %H:%M:%S') if hasattr(ticket, 'resolved_at') and ticket.resolved_at else 'N/A'
+                ticket.resolved_at.strftime('%Y-%m-%d %H:%M:%S') if ticket.resolved_at else 'N/A'
             ]
             for col, value in enumerate(data, 1):
                 ws.cell(row=row, column=col, value=value)

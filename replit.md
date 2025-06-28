@@ -102,6 +102,9 @@ The GTN Engineering IT Helpdesk System is a comprehensive Flask-based web applic
 
 ## Changelog
 
+- June 28, 2025: Fixed datetime formatting issues in Excel export and template filters to handle None values properly
+- June 28, 2025: Corrected template syntax errors in assign_work.html and updated assignment logic for simplified role structure
+- June 28, 2025: Fixed URL routing errors caused by duplicate "super_" prefixes in template navigation links
 - June 28, 2025: Successfully completed Admin role removal from the entire system - now only supports User and Super Admin roles for simplified management
 - June 28, 2025: Updated all forms, routes, models, and templates to remove Admin role references and cleaned up access control logic
 - June 28, 2025: Removed admin_dashboard.html template and admin_dashboard route as they're no longer needed
